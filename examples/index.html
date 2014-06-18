@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>binauralModeled example</title>
+    <meta charset="utf-8"/>
+    <script src="/examples/js/buffer-loader.js"></script>
+    <script src="/examples/js/player.js"></script>
+    <script src="/binauralmodeled.js"></script>
+    <script src="/examples/snd/complete_hrtf_modeled.js"></script>
+    <script src="/examples/js/jquery-1.11.1.min.js"></script>
+    <script src="/examples/js/jquery.knob.js"></script>
+
+    <script>
+        var audioContext = new AudioContext();
+        var bufferLoader = createBufferLoader();
+        var targetNode = audioContext.destination;
+
+        //Create Audio Nodes
+        var player = createPlayer();
+        var binauralModeledNode = createBinauralModeled();
+        //Set HRTF dataset
+        binauralModeledNode.HRTFDataset = modeledHRTFData;
+        //Connect Audio Nodes
+        player.connect(binauralModeledNode.input);
+        binauralModeledNode.connect(targetNode);
+        binauralModeledNode.setPosition(0, 0, 1);
+
+        //Load player file
+        bufferLoader.load('/examples/snd/breakbeat.wav').then(function(buffer){
+          player.setBuffer(buffer);
+          player.enableLoop(true);
+        })
+    </script>
+</head>
+<body>
+    <center>
+        <button id ="play"> Play </button>
+        <button id ="stop"> Stop </button>
+        <button id ="pause"> Pause </button>
+        <pre> Azimuth </pre>
+        <input type="text" data-angleOffset=180 class="vs1" data-width="180" data-cursor=true data-thickness=".5"  data-min="-180" data-max="180" data-rotation="clockwise">
+        <pre> Elevation </pre>   
+        <input type="text" data-angleArc=180 data-angleOffset=-90 class="vs2" data-width="180" data-cursor=true data-thickness=".5"  data-min="-90" data-max="90" data-rotation="clockwise">
+    </center>
+
+    <script>
+        $(".vs1").val(0);
+          //Listeners of the knobs
+        $(".vs1").knob({
+          'change' : function (v) {
+            binauralModeledNode.setPosition(v, binauralModeledNode.getPosition().elevation, binauralModeledNode.getPosition().distance);
+          },
+          'release' : function (v) {
+            binauralModeledNode.setPosition(v, binauralModeledNode.getPosition().elevation, binauralModeledNode.getPosition().distance);
+          }
+        });
+        $(".vs2").val(0);
+          //Listeners of the knobs
+        $(".vs2").knob({
+          'change' : function (v) {
+            binauralModeledNode.setPosition(binauralModeledNode.getPosition().azimuth, v, binauralModeledNode.getPosition().distance);
+          },
+          'release' : function (v) {
+            binauralModeledNode.setPosition(binauralModeledNode.getPosition().azimuth, v, binauralModeledNode.getPosition().distance);
+          }
+        });
+
+        var playButton = document.getElementById("play");       
+        playButton.addEventListener('click', function(){
+            player.start();
+        });
+        var stopButton = document.getElementById("stop");
+        stopButton.addEventListener('click', function(){
+            player.stop();
+        })
+        var pauseButton = document.getElementById("pause");
+        pauseButton.addEventListener('click', function(){
+            player.pause();
+        })
+    </script>
+
+</body>
+</html>
