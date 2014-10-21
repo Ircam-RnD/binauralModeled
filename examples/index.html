@@ -11,9 +11,73 @@
     <script src="/examples/js/jquery.knob.js"></script>
 
     <script>
-        var audioContext = new AudioContext();
-        var bufferLoader = createBufferLoader();
-        var targetNode = audioContext.destination;
+
+    var loader = function(path, cb){
+        var req = new XMLHttpRequest();
+        req.open('GET', path, true);
+        req.onreadystatechange = function(evt){
+            if (req.readyState == 4) {
+               if(req.status == 200){
+                cb(req.responseText)
+               }
+           }
+       }
+       req.send(null);
+   }
+   var IR, sourcePosition;
+
+   loader('/examples/opendap/irc_1002.sofa.IR', function(res){
+    IR = res;
+    loader('/examples/opendap/irc_1002.sofa.asc.sourceposition', function(res){
+        sourcePosition = res;
+        // split the global string into an array of strings
+        var sourcesPositions = sourcePosition.split('\n');
+        // remove first line which is useless
+        sourcesPositions.shift()
+        // remove last line (might be empty) /// TODO : check that
+        sourcesPositions.pop()
+        var re = /SourcePosition\[(.*)\], (.*), (.*), (.*)/;
+
+        // go to each element of the array, and apply the parsing
+        var sourcePositionsParsed = sourcesPositions.map(function(elmt){
+            var res = re.exec(elmt);
+            var obj = {
+                index: parseInt(res[1]),
+                azimuth: parseFloat(res[2]),
+                elevation: parseFloat(res[3]),
+                distance: parseFloat(res[4])
+            }
+            //console.log(obj)
+            return obj;
+        })
+        //console.log(sourcePositionsParsed);
+        var IRs = IR.split('\n');
+        IRs.shift()
+        IRs.pop()
+        var reIR = /Data.IR\[(.*)\]\[(.*)\], (.*)/;
+        var IRsParsed = IRs.map(function(elmt){
+            var res = reIR.exec(elmt);
+            var obj = {
+                a: parseInt(res[1]),
+                b: parseInt(res[2]),
+                coeffs: res[3].split(',').map(parseFloat)
+            };
+            return obj
+        })
+
+        // Work on the other files
+        // sourcePositionsParsed[15].iir_coeffs_left = []
+
+        //binauralModeledNode.HRTFDataset = sourcePositionsParsed
+
+    })
+   })
+
+
+
+    var audioContext = new AudioContext();
+    var bufferLoader = createBufferLoader();
+    var targetNode = audioContext.destination;
 
         //Create Audio Nodes
         var player = createPlayer();
@@ -29,55 +93,55 @@
         bufferLoader.load('/examples/snd/breakbeat.wav').then(function(buffer){
           player.setBuffer(buffer);
           player.enableLoop(true);
-        })
-    </script>
-</head>
-<body>
-    <center>
-        <button id ="play"> Play </button>
-        <button id ="stop"> Stop </button>
-        <button id ="pause"> Pause </button>
-        <pre> Azimuth </pre>
-        <input type="text" data-angleOffset=180 class="vs1" data-width="180" data-cursor=true data-thickness=".5"  data-min="-180" data-max="180" data-rotation="clockwise">
-        <pre> Elevation </pre>   
-        <input type="text" data-angleArc=180 data-angleOffset=-90 class="vs2" data-width="180" data-cursor=true data-thickness=".5"  data-min="-90" data-max="90" data-rotation="clockwise">
-    </center>
+      })
+        </script>
+    </head>
+    <body>
+        <center>
+            <button id ="play"> Play </button>
+            <button id ="stop"> Stop </button>
+            <button id ="pause"> Pause </button>
+            <pre> Azimuth </pre>
+            <input type="text" data-angleOffset=180 class="vs1" data-width="180" data-cursor=true data-thickness=".5"  data-min="-180" data-max="180" data-rotation="clockwise">
+            <pre> Elevation </pre>
+            <input type="text" data-angleArc=180 data-angleOffset=-90 class="vs2" data-width="180" data-cursor=true data-thickness=".5"  data-min="-90" data-max="90" data-rotation="clockwise">
+        </center>
 
-    <script>
+        <script>
         $(".vs1").val(0);
           //Listeners of the knobs
-        $(".vs1").knob({
-          'change' : function (v) {
-            binauralModeledNode.setPosition(v, binauralModeledNode.getPosition().elevation, binauralModeledNode.getPosition().distance);
-          },
-          'release' : function (v) {
-            binauralModeledNode.setPosition(v, binauralModeledNode.getPosition().elevation, binauralModeledNode.getPosition().distance);
-          }
+          $(".vs1").knob({
+              'change' : function (v) {
+                binauralModeledNode.setPosition(v, binauralModeledNode.getPosition().elevation, binauralModeledNode.getPosition().distance);
+            },
+            'release' : function (v) {
+                binauralModeledNode.setPosition(v, binauralModeledNode.getPosition().elevation, binauralModeledNode.getPosition().distance);
+            }
         });
-        $(".vs2").val(0);
+          $(".vs2").val(0);
           //Listeners of the knobs
-        $(".vs2").knob({
-          'change' : function (v) {
-            binauralModeledNode.setPosition(binauralModeledNode.getPosition().azimuth, v, binauralModeledNode.getPosition().distance);
-          },
-          'release' : function (v) {
-            binauralModeledNode.setPosition(binauralModeledNode.getPosition().azimuth, v, binauralModeledNode.getPosition().distance);
-          }
+          $(".vs2").knob({
+              'change' : function (v) {
+                binauralModeledNode.setPosition(binauralModeledNode.getPosition().azimuth, v, binauralModeledNode.getPosition().distance);
+            },
+            'release' : function (v) {
+                binauralModeledNode.setPosition(binauralModeledNode.getPosition().azimuth, v, binauralModeledNode.getPosition().distance);
+            }
         });
 
-        var playButton = document.getElementById("play");       
-        playButton.addEventListener('click', function(){
+          var playButton = document.getElementById("play");
+          playButton.addEventListener('click', function(){
             player.start();
         });
-        var stopButton = document.getElementById("stop");
-        stopButton.addEventListener('click', function(){
+          var stopButton = document.getElementById("stop");
+          stopButton.addEventListener('click', function(){
             player.stop();
         })
-        var pauseButton = document.getElementById("pause");
-        pauseButton.addEventListener('click', function(){
+          var pauseButton = document.getElementById("pause");
+          pauseButton.addEventListener('click', function(){
             player.pause();
         })
-    </script>
+          </script>
 
-</body>
-</html>
+      </body>
+      </html>
