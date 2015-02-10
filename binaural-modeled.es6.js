@@ -10,7 +10,7 @@ var BiquadFilter = require("biquad-filter");
 var FractionalDelay = require("fractional-delay");
 
 /**
- * BinauralModeled object as an ECMAScript5 properties object.
+ * @class BinauralModeled
  */
 class BinauralModeled {
 

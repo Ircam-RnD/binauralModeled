@@ -21,7 +21,7 @@
     "audio-context": "git://github.com/ircam-rnd/audio-context.git#master"
   },
   "scripts": {
-    "bundle": "browserify binaural-modeled.es6.js > binaural-modeled.js -s 'BinauralFIR' -d -t es6ify",
+    "bundle": "browserify binaural-modeled.es6.js > binaural-modeled.js -s 'BinauralModeled' -d -t es6ify",
     "watch": "nodemon -w binaural-modeled.es6.js -x npm run bundle"
   }
 }
