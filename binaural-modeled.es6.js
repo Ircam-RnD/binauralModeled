@@ -5,7 +5,6 @@
  * @version 0.1.0
  */
 var kdt = require('kdt');
-var audioContext = require("audio-context");
 var BiquadFilter = require("biquad-filter");
 var FractionalDelay = require("fractional-delay");
 
@@ -19,7 +18,8 @@ class BinauralModeled {
      * @public
      * @chainable
      */
-    constructor() {
+    constructor(options) {
+        this.audioContext = options.audioContext;
         // Private properties
         this.hrtfDataset = undefined;
         this.hrtfDatasetLength = undefined;
@@ -30,22 +30,22 @@ class BinauralModeled {
         this.bufferSize = 1024;
         this.tree = -1;
 
-        this.input = audioContext.createGain();
+        this.input = this.audioContext.createGain();
 
         // Two sub audio graphs creation:
         // - mainConvolver which represents the current state
         // - and secondaryConvolver which represents the potential target state
         //   when moving sound to a new position
 
-        this.mainAudioGraph = new ProcessingAudioGraph();
+        this.mainAudioGraph = new ProcessingAudioGraph({audioContext: this.audioContext});
         this.mainAudioGraph.gain.value = 1;
         this.input.connect(this.mainAudioGraph.input);
 
-        this.secondaryAudioGraph = new ProcessingAudioGraph();
+        this.secondaryAudioGraph = new ProcessingAudioGraph({audioContext: this.audioContext});
         this.secondaryAudioGraph.gain.value = 0;
         this.input.connect(this.secondaryAudioGraph.input);
         // Web Audio
-        this.sampleRate = audioContext.sampleRate;
+        this.sampleRate = this.audioContext.sampleRate;
         //Connections
         this.input.connect(this.mainAudioGraph.input);
         this.input.connect(this.secondaryAudioGraph.input);
@@ -145,7 +145,7 @@ class BinauralModeled {
      */
     crossfading() {
         // Do the crossfading between mainAudioGraph and secondaryAudioGraph
-        var now = audioContext.currentTime;
+        var now = this.audioContext.currentTime;
         // Wait two buffers until do the change (scriptProcessorNode only update the variables at the first sample of the buffer)
         this.mainAudioGraph.gain.setValueAtTime(1, now + 2 * this.bufferSize / this.sampleRate);
         this.mainAudioGraph.gain.linearRampToValueAtTime(0, now + this.crossfadeDuration + 2 * this.bufferSize / this.sampleRate);
@@ -348,18 +348,19 @@ class BinauralModeled {
 class ProcessingAudioGraph {
 
 
-    constructor() {
+    constructor(options) {
+        this.audioContext = options.audioContext;
         // Private properties
         this.bufferSize = 1024;
 
         // Creations
-        this.input = audioContext.createGain();
-        this.gainNode = audioContext.createGain();
+        this.input = this.audioContext.createGain();
+        this.gainNode = this.audioContext.createGain();
         this.biquadFilterLeft = new BiquadFilter();
         this.biquadFilterRight = new BiquadFilter();
         this.fractionalDelayLeft = new FractionalDelay(44100);
         this.fractionalDelayRight = new FractionalDelay(44100);
-        this.processorNode = audioContext.createScriptProcessor(this.bufferSize);
+        this.processorNode = this.audioContext.createScriptProcessor(this.bufferSize);
         // Connections
         this.input.connect(this.processorNode);
         this.processorNode.connect(this.gainNode);

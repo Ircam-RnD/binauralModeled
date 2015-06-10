@@ -4,9 +4,9 @@
   <title>binauralModeled example</title>
   <meta charset="utf-8"/>
   <script src="https://google.github.io/traceur-compiler/bin/traceur.js"></script>
-  <script src="https://rawgit.com/Ircam-RnD/loaders/master/loaders.js"></script>
   <script src="https://rawgit.com/Ircam-RnD/player/master/player.js"></script>
   <script src="/binaural-modeled.js"></script>
+  <script src="/examples/js/waves.min.js"></script>
   <script src="/examples/snd/complete_hrtf_modeled.js"></script>
   <script src="/examples/js/jquery-1.11.1.min.js"></script>
   <script src="/examples/js/jquery.knob.js"></script>
@@ -74,12 +74,13 @@ loader('/examples/opendap/irc_1002.sofa.IR', function(res){
       })
 })
 
-var bufferLoader = new loaders.AudioBufferLoader();
-var targetNode = waves.audioContext.destination;
+var bufferLoader = new waves.loaders.AudioBufferLoader();
+var audioContext = waves.audio.audioContext;
+var targetNode = audioContext.destination;
 
         //Create Audio Nodes
-        var player = new Player();
-        var binauralModeledNode = new BinauralModeled();
+        var player = new Player(undefined, {audioContext:audioContext});
+        var binauralModeledNode = new BinauralModeled({audioContext:audioContext});
         //Set HRTF dataset
         binauralModeledNode.HRTFDataset = modeledHRTFData;
         //Connect Audio Nodes
