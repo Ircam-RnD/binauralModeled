@@ -1,55 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>binauralModeled example</title>
+  <title>Binaural Modeled Example</title>
   <meta charset="utf-8"/>
-  <script src="https://google.github.io/traceur-compiler/bin/traceur.js"></script>
   <script src="/binaural-modeled.min.js"></script>
   <script src="/examples/snd/complete_hrtf_modeled.js"></script>
   <script src="/examples/js/jquery-1.11.1.min.js"></script>
   <script src="/examples/js/jquery.knob.js"></script>
-
-
-      </head>
-      <body>
-        <audio src='/examples/snd/breakbeat.wav' id="source" controls loop></audio>
-        <center>
-          <pre> Azimuth </pre>
-          <input type="text" data-angleOffset=180 class="vs1" data-width="180" data-cursor=true data-thickness=".5"  data-min="-180" data-max="180" data-rotation="clockwise">
-          <pre> Elevation </pre>
-          <input type="text" data-angleArc=180 data-angleOffset=-90 class="vs2" data-width="180" data-cursor=true data-thickness=".5"  data-min="-90" data-max="90" data-rotation="clockwise">
-        </center>
-
- <script>
-
-  var loader = function(path, cb){
-    var req = new XMLHttpRequest();
-    req.open('GET', path, true);
-    req.onreadystatechange = function(evt){
-      if (req.readyState == 4) {
-       if(req.status == 200){
-        cb(req.responseText)
-      }
-    }
+  <style type="text/css">
+  input[type=range][orient=vertical]
+  {
+    writing-mode: bt-lr; /* IE */
+    -webkit-appearance: slider-vertical; /* WebKit */
+    width: 8px;
+    height: 175px;
+    padding: 0 5px;
   }
-  req.send(null);
-}
-var IR, sourcePosition;
+  </style>
+</head>
+<body>
+  <h1>Binaural Modeled</h1>
+  <p>
+    This example illustrates the use of the binauralModeled node to spatialize in real-time an incoming audio stream around the head of the listener. The process can be easily replicated for multiple sources or multichannel audio streams. In this implementation, the binaural process relies on the filtering of the incoming audio stream with HRTF (Head Related Transfer Function) measured on a human head in free field conditions (anechoïc room). In order to reduce the processing cost, each HRTF is modeled by the combination of a fractional delay that accounts for the Interaural Time Delay (ITD) and a series of biquad filters that approximate the magnitude spectrum of the HRTFs. See [1] for implementation details.
+  </p>
 
-loader('/examples/opendap/irc_1002.sofa.IR', function(res){
-  IR = res;
-  loader('/examples/opendap/irc_1002.sofa.asc.sourceposition', function(res){
-    sourcePosition = res;
+  <p>
+    The basic user interface provides control on the rotation in the horizontal plane (azimuth) and on the vertical dimension (elevation). In the current version, the set of HRTFs is imposed. In a future release, the user interface will propose to download different sets of HRTFs filters from a public server that will host a database of individual HRTFs.
+  </p>
+
+  <p>
+    [1]  T. Carpentier, Binaural Synthesis with the Web Audio API, 1st Web Audio Conference (WAC15), Paris 2015
+  </p>
+  <p>
+    Warning: this web page has been checked only on Chrome latest version.
+  </p>
+
+  <audio src='/examples/snd/breakbeat.wav' id="source" controls loop></audio>
+  <center>
+    <pre>Azimuth</pre>
+    <input type="text" data-angleOffset=180 class="vs1" data-width="180" data-cursor=true data-thickness=".5"  data-min="-180" data-max="180" data-rotation="clockwise">
+    <pre>Elevation</pre>
+    <input type="range" min="-90" max="90" step="0.5" class="vs3" orient="vertical" />
+  </center>
+
+  <script>
+    var loader = function(path, cb) {
+      var req = new XMLHttpRequest();
+      req.open('GET', path, true);
+      req.onreadystatechange = function(evt) {
+        if (req.readyState == 4) {
+          if (req.status == 200) {
+            cb(req.responseText)
+          }
+        }
+      }
+      req.send(null);
+    }
+
+    var IR, sourcePosition;
+
+    loader('/examples/opendap/irc_1002.sofa.IR', function(res) {
+      IR = res;
+      loader('/examples/opendap/irc_1002.sofa.asc.sourceposition', function(res) {
+        sourcePosition = res;
         // split the global string into an array of strings
         var sourcesPositions = sourcePosition.split('\n');
         // remove first line which is useless
-        sourcesPositions.shift()
+        sourcesPositions.shift();
         // remove last line (might be empty) /// TODO : check that
-        sourcesPositions.pop()
+        sourcesPositions.pop();
         var re = /SourcePosition\[(.*)\], (.*), (.*), (.*)/;
 
         // go to each element of the array, and apply the parsing
-        var sourcePositionsParsed = sourcesPositions.map(function(elmt){
+        var sourcePositionsParsed = sourcesPositions.map(function(elmt) {
           var res = re.exec(elmt);
           var obj = {
             index: parseInt(res[1]),
@@ -57,15 +80,14 @@ loader('/examples/opendap/irc_1002.sofa.IR', function(res){
             elevation: parseFloat(res[3]),
             distance: parseFloat(res[4])
           }
-            //console.log(obj)
-            return obj;
-          })
-        //console.log(sourcePositionsParsed);
+          return obj;
+        })
+
         var IRs = IR.split('\n');
         IRs.shift()
         IRs.pop()
         var reIR = /Data.IR\[(.*)\]\[(.*)\], (.*)/;
-        var IRsParsed = IRs.map(function(elmt){
+        var IRsParsed = IRs.map(function(elmt) {
           var res = reIR.exec(elmt);
           var obj = {
             a: parseInt(res[1]),
@@ -74,61 +96,39 @@ loader('/examples/opendap/irc_1002.sofa.IR', function(res){
           };
           return obj
         })
-
-        // Work on the other files
-        // sourcePositionsParsed[15].iir_coeffs_left = []
-
-        //binauralModeledNode.HRTFDataset = sourcePositionsParsed
-
       })
-})
-var audioContext = new AudioContext();
-var targetNode = audioContext.destination;
+    })
 
-        //Create Audio Nodes
-        //var player = new Player(undefined, {audioContext:audioContext});
-        var binauralModeledNode = new BinauralModeled({audioContext:audioContext});
+    var audioContext = new AudioContext();
+    var targetNode = audioContext.destination;
 
-        var mediaElement = document.getElementById('source');
-        var player = audioContext.createMediaElementSource(mediaElement);
+    // Create Audio Nodes
+    var binauralModeledNode = new BinauralModeled({
+      audioContext: audioContext
+    });
+    var mediaElement = document.getElementById('source');
+    var player = audioContext.createMediaElementSource(mediaElement);
 
-        //Set HRTF dataset
-        binauralModeledNode.HRTFDataset = modeledHRTFData;
-        //Connect Audio Nodes
-        player.connect(binauralModeledNode.input);
-        binauralModeledNode.connect(targetNode);
-        binauralModeledNode.setPosition(0, 0, 1);
+    // Set HRTF dataset
+    binauralModeledNode.HRTFDataset = modeledHRTFData;
+    // Connect Audio Nodes
+    player.connect(binauralModeledNode.input);
+    binauralModeledNode.connect(targetNode);
+    binauralModeledNode.setPosition(0, 0, 1);
 
-        //Load player file
-        // bufferLoader.load('/examples/snd/breakbeat.wav').then(function(buffer){
-        //   player.setBuffer(buffer);
-        //   player.enableLoop(true);
-        // })
-        </script>
-
-        <script>
-        $(".vs1").val(0);
-          //Listeners of the knobs
-          $(".vs1").knob({
-            'change' : function (v) {
-              binauralModeledNode.setPosition(v, binauralModeledNode.getPosition().elevation, binauralModeledNode.getPosition().distance);
-            },
-            'release' : function (v) {
-              binauralModeledNode.setPosition(v, binauralModeledNode.getPosition().elevation, binauralModeledNode.getPosition().distance);
-            }
-          });
-          $(".vs2").val(0);
-          //Listeners of the knobs
-          $(".vs2").knob({
-            'change' : function (v) {
-              binauralModeledNode.setPosition(binauralModeledNode.getPosition().azimuth, v, binauralModeledNode.getPosition().distance);
-            },
-            'release' : function (v) {
-              binauralModeledNode.setPosition(binauralModeledNode.getPosition().azimuth, v, binauralModeledNode.getPosition().distance);
-            }
-          });
-
-          </script>
-
-        </body>
-        </html>
+    $(".vs1").val(0);
+    // Listeners of the knobs
+    $(".vs1").knob({
+      'change': function(v) {
+        binauralModeledNode.setPosition(v, binauralModeledNode.getPosition().elevation, binauralModeledNode.getPosition().distance);
+      },
+      'release': function(v) {
+        binauralModeledNode.setPosition(v, binauralModeledNode.getPosition().elevation, binauralModeledNode.getPosition().distance);
+      }
+    });
+    $('.vs3').on("input change", function(evt) {
+      binauralModeledNode.setPosition(binauralModeledNode.getPosition().azimuth, evt.target.value, binauralModeledNode.getPosition().distance);
+    });
+  </script>
+</body>
+</html>
