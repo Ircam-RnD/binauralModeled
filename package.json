@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "description": "Processing node which spatializes an incoming audio stream in three-dimensional space for binaural audio.",
   "main": "binaural-modeled.js",
+  "standalone": "BinauralModeled",
   "scripts": {
     "transpile": "node ./bin/scripts.js --transpile",
     "prebundle": "npm run hint && npm run transpile",
@@ -21,8 +22,8 @@
   "dependencies": {
     "babel-runtime": "^5.8.20",
     "kdt": "^0.1.0",
-    "biquad-filter": "git+https://github.com/Ircam-RnD/biquad-filter.git#master",
-    "fractional-delay": "git+https://github.com/Ircam-RnD/fractional-delay.git#master"
+    "biquad-filter": "git+https://github.com/Ircam-RnD/biquad-filter.git#gh-pages",
+    "fractional-delay": "git+https://github.com/Ircam-RnD/fractional-delay.git#gh-pages"
   },
   "devDependencies": {
     "babel": "^5.8.23",

@@ -13,43 +13,7 @@ We provide a modeled HRTF dataset example provided by [IRCAM](http://www.ircam.f
 
 ## Example
 
-Load binauralModeled.js, for instance in your html file by using:
-
-```html
-    <script src="binuralmodeled.min.js"></script>
-    <!-- https://github.com/Ircam-RnD/buffer-loader  We need a way to load and decode the HRTF files, so we use this lib -->
-    <script src="buffer-loader.min.js"></script>
-    <!-- https://github.com/Ircam-RnD/player - We use this player to play a sound -->
-    <script src="player.min.js"></script>
-    <!-- You can find the file with the HRTF dataset in  /examples/snd/complete_hrtfs_modeled.js folder.-->
-    <script src ="complete_hrtfs_modeled.js"></script>
-```
-
-```js
-  // We need an audio context
-  var audioContext = new AudioContext();
-  var targetNode = audioContext.destination;
-  //Create Audio Nodes
-  var player = createPlayer();
-  var binauralModeledNode = createBinauralModeled();
-  
-  // Set HRTF dataset (it is possible to find a dataset example in the /examples/snd/complete_hrtf_modeled.js folder)
-  binauralModeledNode.HRTFDataset = hrtfs;
-  
-  // Connect Audio Nodes
-  player.connect(binauralModeledNode.input);
-  binauralModeledNode.connect(targetNode);
-  // Set the position of the virtual source to -45° azimuth - 45° on your left -, distance of 1 meter and elevation of 10º
-  binauralModeledNode.setPosition(-45, 10, 1);
-
-  // Load player file
-  bufferLoader.load('/examples/snd/breakbeat.wav').then(function(buffer){
-    player.setBuffer(buffer);
-    player.enableLoop(true);
-    player.start();
-  })
-  
-```
+A working demo for this module can be found [here](https://ircam-rnd.github.io/binauralModeled/) and in the `examples` folder.
 
 ## HRTF dataset format
 
@@ -147,25 +111,14 @@ Method | Description
 
 ## Tests
 
-If grunt is not installed
-
-```bash
-$ npm install -g grunt-cli
-```
-
 Install all depencies in the module folder
 
 ```bash
 $ npm install
+$ npm run test
 ```
 
-Run the server on 9001 port (you can change the port in the Grunfile.js)
-
-```bash
-$ grunt test
-```
-
-Run the test via the web browser on `http://localhost:9001/tests`
+Run the test via the web browser.
 
 ## License
 

@@ -1,4 +1,1 @@
-// CommonJS function export
-module.exports = {
-  BinauralModeled: require('./dist/binaural-modeled')
-};
+module.exports = require('./dist/binaural-modeled');

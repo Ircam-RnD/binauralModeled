@@ -4,15 +4,15 @@
  * @author Arnau Julià <Arnau.Julia@gmail.com>
  * @version 0.1.0
  */
-var kdt = require('kdt');
-var BiquadFilter = require('biquad-filter');
-var FractionalDelay = require('fractional-delay');
+import kdt from 'kdt';
+import BiquadFilter from 'biquad-filter';
+import FractionalDelay from 'fractional-delay';
 
 
 /**
  * @class BinauralModeled
  */
-class BinauralModeled {
+export default class BinauralModeled {
   /**
    * Mandatory initialization method.
    * @public
@@ -424,5 +424,3 @@ class ProcessingAudioGraph {
     return this;
   }
 }
-
-module.exports = BinauralModeled;

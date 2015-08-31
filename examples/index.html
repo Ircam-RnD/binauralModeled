@@ -4,14 +4,23 @@
   <title>binauralModeled example</title>
   <meta charset="utf-8"/>
   <script src="https://google.github.io/traceur-compiler/bin/traceur.js"></script>
-  <script src="https://rawgit.com/Ircam-RnD/player/master/player.js"></script>
-  <script src="/binaural-modeled.js"></script>
-  <script src="/examples/js/waves.min.js"></script>
+  <script src="/binaural-modeled.min.js"></script>
   <script src="/examples/snd/complete_hrtf_modeled.js"></script>
   <script src="/examples/js/jquery-1.11.1.min.js"></script>
   <script src="/examples/js/jquery.knob.js"></script>
 
-  <script>
+
+      </head>
+      <body>
+        <audio src='/examples/snd/breakbeat.wav' id="source" controls loop></audio>
+        <center>
+          <pre> Azimuth </pre>
+          <input type="text" data-angleOffset=180 class="vs1" data-width="180" data-cursor=true data-thickness=".5"  data-min="-180" data-max="180" data-rotation="clockwise">
+          <pre> Elevation </pre>
+          <input type="text" data-angleArc=180 data-angleOffset=-90 class="vs2" data-width="180" data-cursor=true data-thickness=".5"  data-min="-90" data-max="90" data-rotation="clockwise">
+        </center>
+
+ <script>
 
   var loader = function(path, cb){
     var req = new XMLHttpRequest();
@@ -73,14 +82,16 @@ loader('/examples/opendap/irc_1002.sofa.IR', function(res){
 
       })
 })
-
-var bufferLoader = new waves.loaders.AudioBufferLoader();
-var audioContext = waves.audio.audioContext;
+var audioContext = new AudioContext();
 var targetNode = audioContext.destination;
 
         //Create Audio Nodes
-        var player = new Player(undefined, {audioContext:audioContext});
+        //var player = new Player(undefined, {audioContext:audioContext});
         var binauralModeledNode = new BinauralModeled({audioContext:audioContext});
+
+        var mediaElement = document.getElementById('source');
+        var player = audioContext.createMediaElementSource(mediaElement);
+
         //Set HRTF dataset
         binauralModeledNode.HRTFDataset = modeledHRTFData;
         //Connect Audio Nodes
@@ -89,22 +100,11 @@ var targetNode = audioContext.destination;
         binauralModeledNode.setPosition(0, 0, 1);
 
         //Load player file
-        bufferLoader.load('/examples/snd/breakbeat.wav').then(function(buffer){
-          player.setBuffer(buffer);
-          player.enableLoop(true);
-        })
+        // bufferLoader.load('/examples/snd/breakbeat.wav').then(function(buffer){
+        //   player.setBuffer(buffer);
+        //   player.enableLoop(true);
+        // })
         </script>
-      </head>
-      <body>
-        <center>
-          <button id ="play"> Play </button>
-          <button id ="stop"> Stop </button>
-          <button id ="pause"> Pause </button>
-          <pre> Azimuth </pre>
-          <input type="text" data-angleOffset=180 class="vs1" data-width="180" data-cursor=true data-thickness=".5"  data-min="-180" data-max="180" data-rotation="clockwise">
-          <pre> Elevation </pre>
-          <input type="text" data-angleArc=180 data-angleOffset=-90 class="vs2" data-width="180" data-cursor=true data-thickness=".5"  data-min="-90" data-max="90" data-rotation="clockwise">
-        </center>
 
         <script>
         $(".vs1").val(0);
@@ -128,18 +128,6 @@ var targetNode = audioContext.destination;
             }
           });
 
-          var playButton = document.getElementById("play");
-          playButton.addEventListener('click', function(){
-            player.start();
-          });
-          var stopButton = document.getElementById("stop");
-          stopButton.addEventListener('click', function(){
-            player.stop();
-          })
-          var pauseButton = document.getElementById("pause");
-          pauseButton.addEventListener('click', function(){
-            player.pause();
-          })
           </script>
 
         </body>
