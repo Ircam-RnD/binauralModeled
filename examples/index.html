@@ -3,10 +3,10 @@
 <head>
   <title>Binaural Modeled Example</title>
   <meta charset="utf-8"/>
-  <script src="/binaural-modeled.min.js"></script>
-  <script src="/examples/snd/complete_hrtf_modeled.js"></script>
-  <script src="/examples/js/jquery-1.11.1.min.js"></script>
-  <script src="/examples/js/jquery.knob.js"></script>
+  <script src="../binaural-modeled.min.js"></script>
+  <script src="./snd/complete_hrtf_modeled.js"></script>
+  <script src="./js/jquery-1.11.1.min.js"></script>
+  <script src="./js/jquery.knob.js"></script>
   <style type="text/css">
   input[type=range][orient=vertical]
   {
@@ -35,7 +35,7 @@
     Warning: this web page has been checked only on Chrome latest version.
   </p>
 
-  <audio src='/examples/snd/breakbeat.wav' id="source" controls loop></audio>
+  <audio src='./snd/breakbeat.wav' id="source" controls loop></audio>
   <center>
     <pre>Azimuth</pre>
     <input type="text" data-angleOffset=180 class="vs1" data-width="180" data-cursor=true data-thickness=".5"  data-min="-180" data-max="180" data-rotation="clockwise">
@@ -59,9 +59,9 @@
 
     var IR, sourcePosition;
 
-    loader('/examples/opendap/irc_1002.sofa.IR', function(res) {
+    loader('./opendap/irc_1002.sofa.IR', function(res) {
       IR = res;
-      loader('/examples/opendap/irc_1002.sofa.asc.sourceposition', function(res) {
+      loader('./opendap/irc_1002.sofa.asc.sourceposition', function(res) {
         sourcePosition = res;
         // split the global string into an array of strings
         var sourcesPositions = sourcePosition.split('\n');
