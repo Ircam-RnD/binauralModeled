@@ -148,7 +148,6 @@ export default class BinauralModeled {
   }
 
   _crossfadeTo(target, position) {
-    console.log(target, position);
     // Set the new target position
     this.position = position;
     this.target = target;
