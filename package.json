@@ -30,6 +30,7 @@
     "babelify": "^6.2.0",
     "browserify": "^11.0.1",
     "coverify": "^1.4.1",
+    "connect": "^3.4.0",
     "jshint": "^2.8.0",
     "testling": "^1.7.1",
     "cli-color": "^1.0.0",
@@ -37,6 +38,9 @@
     "minimist": "^1.2.0",
     "node-string-pad": "0.0.4",
     "node-watch": "^0.3.4",
+    "portfinder": "^0.4.0",
+    "serve-favicon": "^2.3.0",
+    "serve-static": "^1.10.0",
     "sinon": "^1.14.1",
     "tape": "^4.2.0",
     "uglify-js": "^2.4.24"
